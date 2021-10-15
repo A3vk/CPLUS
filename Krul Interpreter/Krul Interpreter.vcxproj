@@ -143,7 +143,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Krul Interpreter.cpp" />
+    <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Curl\CurlFacade.cpp" />
+    <ClCompile Include="Interpeter\Interpreter.cpp" />
+    <ClCompile Include="Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Application.h" />
+    <ClInclude Include="Curl\CurlFacade.h" />
+    <ClInclude Include="Interpeter\Interpreter.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
