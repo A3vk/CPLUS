@@ -20,7 +20,8 @@ std::string Application::InterpretMultipleOnlineFiles(const std::string& url)
 
 	while(!result->ReachedEnd)
 	{
-		result = m_Interpreter->Interpret(url);
+		std::string file = m_CurlFacade->Get(url);
+		result = m_Interpreter->Interpret(file);
 		
 	}
 

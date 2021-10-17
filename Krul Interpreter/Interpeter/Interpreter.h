@@ -1,6 +1,10 @@
 #pragma once
+#include <map>
 #include <memory>
 #include <string>
+#include <vector>
+
+#include "Stack.h"
 
 struct InterpreterResult
 {
@@ -18,8 +22,24 @@ struct InterpreterResult
 class Interpreter
 {
 public:
-	std::shared_ptr<InterpreterResult> Interpret(const std::string& file)
+	Interpreter();
+	~Interpreter();
+	
+	std::shared_ptr<InterpreterResult> Interpret(const std::string& file);
+private:
+	std::vector<std::string> SplitLines(const std::string& input);
+	bool IsInt(const std::string& value);
+	template<typename T>
+	std::string NumberToString(T value)
 	{
-		return std::make_shared<InterpreterResult>("Dit is het resultaat!", true);
+		return std::to_string(value);
 	}
+	std::string CharToString(char value);
+	int StringToInt(const std::string& value);
+
+	int lineNumber = 0;
+	std::shared_ptr<Stack<std::string>> stack;
+	std::shared_ptr<Stack<int>> callStack;
+	std::shared_ptr<std::map<std::string, std::string>> variables;
+	std::shared_ptr<std::map<std::string, int>> labels;
 };
