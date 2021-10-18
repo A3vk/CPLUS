@@ -12,8 +12,8 @@ public:
 	Application();
 	~Application() = default;
 	
-	std::string InterpretOnlineFile(const std::string& url);
-	std::string InterpretMultipleOnlineFiles(const std::string& url);
+	std::string InterpretOnlineFile(const std::string& file);
+	std::string InterpretMultipleOnlineFiles(const std::string& file);
 private:
 	std::unique_ptr<CurlFacade> m_CurlFacade;
 	std::unique_ptr<Interpreter> m_Interpreter;

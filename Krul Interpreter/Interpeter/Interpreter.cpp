@@ -27,7 +27,7 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 	{
 		if(line.rfind(':', 0) != std::string::npos)
 		{
-			labels->insert_or_assign(line.substr(1), index + 1);
+			labels->insert_or_assign(line.substr(1), index);
 		}
 		++index;
 	}
@@ -87,17 +87,17 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		{
 			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(first + second));
+			stack->push_back(NumberToString(second + first));
 		}
 		// Subtract
 		else if (currentLine.rfind("sub", 0) != std::string::npos)
 		{
 			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(first - second));
+			stack->push_back(NumberToString(second - first));
 		}
 		// Multiply
-		else if (currentLine.rfind("mup", 0) != std::string::npos)
+		else if (currentLine.rfind("mul", 0) != std::string::npos)
 		{
 			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
@@ -108,14 +108,14 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		{
 			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(first / second));
+			stack->push_back(NumberToString(static_cast <int>(std::floor(second / first))));
 		}
 		// Modulo
 		else if (currentLine.rfind("mod", 0) != std::string::npos)
 		{
 			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(first % second));
+			stack->push_back(NumberToString(second % first));
 		}
 		// Negate
 		else if (currentLine.rfind("neg", 0) != std::string::npos)
@@ -174,7 +174,7 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		{
 			const std::string first = stack->pop_back();
 			const std::string second = stack->pop_back();
-			stack->push_back(first + second);
+			stack->push_back(second + first);
 		}
 		// Length
 		else if (currentLine.rfind("len", 0) != std::string::npos)
@@ -234,8 +234,8 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		else if (currentLine.rfind("glt", 0) != std::string::npos)
 		{
 			const int line = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
+			const int first = StringToInt(stack->pop_back());
 			if (first < second)
 			{
 				lineNumber = line;
@@ -245,8 +245,8 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		else if (currentLine.rfind("gle", 0) != std::string::npos)
 		{
 			const int line = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
+			const int first = StringToInt(stack->pop_back());
 			if (first <= second)
 			{
 				lineNumber = line;
@@ -256,8 +256,8 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		else if (currentLine.rfind("ggt", 0) != std::string::npos)
 		{
 			const int line = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
+			const int first = StringToInt(stack->pop_back());
 			if (first > second)
 			{
 				lineNumber = line;
@@ -267,8 +267,8 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		else if (currentLine.rfind("gge", 0) != std::string::npos)
 		{
 			const int line = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
 			const int second = StringToInt(stack->pop_back());
+			const int first = StringToInt(stack->pop_back());
 			if (first >= second)
 			{
 				lineNumber = line;
@@ -278,20 +278,15 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		// Definition
 		else if (currentLine.rfind("fun", 0) != std::string::npos)
 		{
-			callStack->push_back(lineNumber + 1);
+			callStack->push_back(lineNumber);
 
 			const int line = StringToInt(stack->pop_back());
 			lineNumber = line;
 		}
 		// Return
-		else if (currentLine.rfind("dup", 0) != std::string::npos)
+		else if (currentLine.rfind("ret", 0) != std::string::npos)
 		{
 			lineNumber = callStack->pop_back();
-		}
-		// End
-		else if (currentLine.rfind("dup", 0) != std::string::npos)
-		{
-			reachedEnd = true;
 		}
 		else
 		{
