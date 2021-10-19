@@ -24,6 +24,7 @@
     <ProjectGuid>{b4a9d967-fce6-4952-9b5e-22d530e100e2}</ProjectGuid>
     <RootNamespace>KrulInterpreter</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>KrulInterpreter</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -78,9 +79,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir);$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -143,19 +146,95 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Interpeter\Commands\OtherCommands\EndCommand.cpp" />
+    <ClCompile Include="Exceptions\CurlUrlException.cpp" />
+    <ClCompile Include="Interpeter\Helper.cpp" />
+    <ClCompile Include="Interpeter\Commands\FunctionCommands\FunctionDefinitionCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\FunctionCommands\FunctionReturnCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoIfEqualCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoIfGreaterCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoIfGreaterOrEqualCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoIfLessCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoIfLessOrEqualCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\TestJumpCommands\GotoIfNotEqualCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\ConcatenationCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\DuplicateCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\IndexCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\AbsoluteCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\AddCommand.cpp" />
     <ClCompile Include="Application.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\DecrementCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\DivideCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\IncrementCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\OtherCommands\CommentCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\ValueTypeCommands\IntegerCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\Command.cpp" />
     <ClCompile Include="Interpeter\Commands\CommandFactory.cpp" />
     <ClCompile Include="Curl\CurlFacade.cpp" />
     <ClCompile Include="Interpeter\Interpreter.cpp" />
+    <ClCompile Include="Interpeter\Commands\ValueTypeCommands\LabelDefinitionCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\ValueTypeCommands\LabelReferenceCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\LengthCommand.cpp" />
+    <ClCompile Include="Exceptions\InterpreterException.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Interpeter\Stack.cpp" />
+    <ClCompile Include="Interpeter\Commands\ValueTypeCommands\StringCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\ValueTypeCommands\VariableAssignmentCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\ValueTypeCommands\VariableReferenceCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\ModuloCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\MultiplyCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\NegateCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\IntegerCommands\SubtractCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\NewLineCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\ReverseCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\RotateCommand.cpp" />
+    <ClCompile Include="Interpeter\Commands\StringCommands\SubstringCommand.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Interpeter\Commands\OtherCommands\EndCommand.h" />
+    <ClInclude Include="Exceptions\CurlUrlException.h" />
+    <ClInclude Include="Interpeter\Helper.h" />
+    <ClInclude Include="Interpeter\Commands\FunctionCommands\FunctionDefinitionCommand.h" />
+    <ClInclude Include="Interpeter\Commands\FunctionCommands\FunctionReturnCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoIfEqualCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoIfGreaterCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoIfGreaterOrEqualCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoIfLessCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoIfLessOrEqualCommand.h" />
+    <ClInclude Include="Interpeter\Commands\TestJumpCommands\GotoIfNotEqualCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\ConcatenationCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\DuplicateCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\IndexCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\AbsoluteCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\AddCommand.h" />
     <ClInclude Include="Application.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\DecrementCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\DivideCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\IncrementCommand.h" />
+    <ClInclude Include="Interpeter\Commands\OtherCommands\CommentCommand.h" />
+    <ClInclude Include="Interpeter\Commands\Command.h" />
+    <ClInclude Include="Interpeter\Commands\ValueTypeCommands\IntegerCommand.h" />
     <ClInclude Include="Interpeter\Commands\CommandFactory.h" />
     <ClInclude Include="Curl\CurlFacade.h" />
     <ClInclude Include="Interpeter\Interpreter.h" />
     <ClInclude Include="Interpeter\Stack.h" />
+    <ClInclude Include="Interpeter\Commands\ValueTypeCommands\StringCommand.h" />
+    <ClInclude Include="Interpeter\Commands\ValueTypeCommands\LabelDefinitionCommand.h" />
+    <ClInclude Include="Interpeter\Commands\ValueTypeCommands\LabelReferenceCommand.h" />
+    <ClInclude Include="Interpeter\Commands\ValueTypeCommands\VariableAssignmentCommand.h" />
+    <ClInclude Include="Interpeter\Commands\ValueTypeCommands\VariableReferenceCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\ModuloCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\MultiplyCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\NegateCommand.h" />
+    <ClInclude Include="Interpeter\Commands\IntegerCommands\SubtractCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\LengthCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\NewLineCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\ReverseCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\RotateCommand.h" />
+    <ClInclude Include="Interpeter\Commands\StringCommands\SubstringCommand.h" />
+    <ClInclude Include="Exceptions\InterpreterException.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

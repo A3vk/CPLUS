@@ -4,24 +4,31 @@
 #include "Application.h"
 #include "Curl/CurlFacade.h"
 
-int main()
+int main(int argc, char* argv[])
 {
-    Application* application = new Application();
-
-    // Manual
-    std::cout << "========= Handmatig =========" << std::endl;
-    application->InterpretOnlineFile("start.txt");
-    application->InterpretOnlineFile("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt");
-    application->InterpretOnlineFile("4812-9-6727.txt");
-    application->InterpretOnlineFile("AasHgsho.txt");
-    application->InterpretOnlineFile("Bososen-hosgen-in-warme-losden-aos-de-bososenboom.txt");
-    application->InterpretOnlineFile("we-zijn-er-bijna.txt");
-    application->InterpretOnlineFile("ninaf-zvabe-fjn-pcc1.txt");
+    std::string file = "start.txt";
 	
-    // Automatic
-    std::cout << "\n\n========= Automatisch =========" << std::endl;
-    const std::string result = application->InterpretMultipleOnlineFiles("start.txt");
-    std::cout << "\n========= Resultaat =========" << std::endl;
-    std::cout << result << std::endl;
-    delete application;
+	if (argc <= 1)
+	{
+        std::cout << "No file parameter found, using the default file 'start.txt'" << std::endl;
+	} else
+	{
+        file = argv[1];
+	}
+	
+    Application application;
+    
+    //std::cout << "========= Handmatig =========" << std::endl;
+    //application->InterpretOnlineFile("start.txt");
+    //application.InterpretOnlineFile("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.txt");
+    //application->InterpretOnlineFile("4812-9-6727.txt");
+    //application->InterpretOnlineFile("AasHgsho.txt");
+    //application->InterpretOnlineFile("Bososen-hosgen-in-warme-losden-aos-de-bososenboom.txt");
+    //application->InterpretOnlineFile("we-zijn-er-bijna.txt");
+    //application->InterpretOnlineFile("ninaf-zvabe-fjn-pcc1.txt");
+
+    std::cout << "Excecution results (" + file << "): " << std::endl;
+    application.InterpretMultipleOnlineFiles(file);
+	
+    return 0;
 }

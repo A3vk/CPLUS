@@ -4,12 +4,51 @@
 #include <iostream>
 #include <sstream>
 
+#include "Commands/FunctionCommands/FunctionDefinitionCommand.h"
+#include "Commands/FunctionCommands/FunctionReturnCommand.h"
+#include "Commands/IntegerCommands/AbsoluteCommand.h"
+#include "Commands/IntegerCommands/AddCommand.h"
+#include "Commands/IntegerCommands/DecrementCommand.h"
+#include "Commands/IntegerCommands/DivideCommand.h"
+#include "Commands/IntegerCommands/IncrementCommand.h"
+#include "Commands/IntegerCommands/ModuloCommand.h"
+#include "Commands/IntegerCommands/MultiplyCommand.h"
+#include "Commands/IntegerCommands/NegateCommand.h"
+#include "Commands/IntegerCommands/SubtractCommand.h"
+#include "Commands/OtherCommands/CommentCommand.h"
+#include "Commands/OtherCommands/EndCommand.h"
+#include "Commands/StringCommands/ConcatenationCommand.h"
+#include "Commands/StringCommands/DuplicateCommand.h"
+#include "Commands/StringCommands/IndexCommand.h"
+#include "Commands/StringCommands/LengthCommand.h"
+#include "Commands/StringCommands/NewLineCommand.h"
+#include "Commands/StringCommands/ReverseCommand.h"
+#include "Commands/StringCommands/RotateCommand.h"
+#include "Commands/StringCommands/SubstringCommand.h"
+#include "Commands/TestJumpCommands/GotoCommand.h"
+#include "Commands/TestJumpCommands/GotoIfEqualCommand.h"
+#include "Commands/TestJumpCommands/GotoIfGreaterCommand.h"
+#include "Commands/TestJumpCommands/GotoIfGreaterOrEqualCommand.h"
+#include "Commands/TestJumpCommands/GotoIfLessCommand.h"
+#include "Commands/TestJumpCommands/GotoIfLessOrEqualCommand.h"
+#include "Commands/TestJumpCommands/GotoIfNotEqualCommand.h"
+#include "Commands/ValueTypeCommands/IntegerCommand.h"
+#include "Commands/ValueTypeCommands/LabelDefinitionCommand.h"
+#include "Commands/ValueTypeCommands/LabelReferenceCommand.h"
+#include "Commands/ValueTypeCommands/StringCommand.h"
+#include "Commands/ValueTypeCommands/VariableAssignmentCommand.h"
+#include "Commands/ValueTypeCommands/VariableReferenceCommand.h"
+#include "Exceptions/InterpreterException.h"
+
 Interpreter::Interpreter()
 {
 	stack = std::make_shared<Stack<std::string>>();
 	callStack = std::make_shared<Stack<int>>();
 	variables = std::make_shared<std::map<std::string, std::string>>();
 	labels = std::make_shared<std::map<std::string, int>>();
+
+	m_Factory = CommandFactory::Get();
+	RegisterCommands();
 }
 
 Interpreter::~Interpreter()
@@ -19,282 +58,80 @@ Interpreter::~Interpreter()
 std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& file)
 {
 	const std::vector<std::string> lines = SplitLines(file);
-	bool reachedEnd = false;
 
 	// Get all reference assignments
-	int index = 0;
-	for (auto& line : lines)
+	for (size_t index = 0; index < lines.size(); index++)
 	{
-		if(line.rfind(':', 0) != std::string::npos)
+		const std::string line = lines[index];
+		if (line.rfind(':', 0) != std::string::npos)
 		{
 			labels->insert_or_assign(line.substr(1), index);
 		}
-		++index;
 	}
 
 	for (lineNumber = 0; lineNumber < lines.size(); lineNumber++)
 	{
 		std::string currentLine = lines[lineNumber];
 
-		// Comments
-		if (currentLine.rfind('#', 0) != std::string::npos) continue;
-		if (currentLine.rfind("end", 0) != std::string::npos)
+		try
 		{
-			reachedEnd = true;
+			m_Factory->Create(currentLine)->Execute(currentLine);
+		}
+		catch (InterpreterException e)
+		{
+			std::cout << e.GetException() << std::endl;
+			return std::make_shared<InterpreterResult>("", true);
+		}
+
+		if (reachedEnd) 
 			break;
-		}
-
-		// Values
-		// Integer
-		if (IsInt(currentLine))
-		{
-			stack->push_back(currentLine);
-		}
-		// String
-		else if (currentLine.rfind('\\', 0) != std::string::npos)
-		{
-			stack->push_back(currentLine.substr(1));
-		}
-		// Labels
-		// Assignment
-		else if (currentLine.rfind(':', 0) != std::string::npos)
-		{
-			continue;
-			//labels->insert_or_assign(currentLine.substr(1), lineNumber + 1);
-		}
-		// Reference
-		else if (currentLine.rfind('>', 0) != std::string::npos)
-		{
-			// TODO: Check if variable exists!
-			auto label = labels->find(currentLine.substr(1));
-			stack->push_back(NumberToString(label->second));
-		}
-		// Variables
-		// Assignment
-		else if (currentLine.rfind('=', 0) != std::string::npos)
-		{
-			// TODO: Check if stack is not empty!
-			variables->insert_or_assign(currentLine.substr(1), stack->pop_back());
-		}
-		// Reference
-		else if (currentLine.rfind('$', 0) != std::string::npos)
-		{
-			stack->push_back(variables->at(currentLine.substr(1)));
-		}
-		// Integer operations
-		// Add
-		else if (currentLine.rfind("add", 0) != std::string::npos)
-		{
-			const int first = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(second + first));
-		}
-		// Subtract
-		else if (currentLine.rfind("sub", 0) != std::string::npos)
-		{
-			const int first = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(second - first));
-		}
-		// Multiply
-		else if (currentLine.rfind("mul", 0) != std::string::npos)
-		{
-			const int first = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(first * second));
-		}
-		// Divide
-		else if (currentLine.rfind("div", 0) != std::string::npos)
-		{
-			const int first = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(static_cast <int>(std::floor(second / first))));
-		}
-		// Modulo
-		else if (currentLine.rfind("mod", 0) != std::string::npos)
-		{
-			const int first = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(second % first));
-		}
-		// Negate
-		else if (currentLine.rfind("neg", 0) != std::string::npos)
-		{
-			const int value = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(value * -1));
-		}
-		// Absolute
-		else if (currentLine.rfind("abs", 0) != std::string::npos)
-		{
-			const int value = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(std::abs(value)));
-		}
-		// Increment
-		else if (currentLine.rfind("inc", 0) != std::string::npos)
-		{
-			const int value = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(value + 1));
-		}
-		// Decrement
-		else if (currentLine.rfind("dec", 0) != std::string::npos)
-		{
-			const int value = StringToInt(stack->pop_back());
-			stack->push_back(NumberToString(value - 1));
-		}
-		// String operations
-		// Duplicate
-		else if (currentLine.rfind("dup", 0) != std::string::npos)
-		{
-			stack->push_back(stack->back());
-		}
-		// Reverse
-		else if (currentLine.rfind("rev", 0) != std::string::npos)
-		{
-			std::string value = stack->pop_back();
-			std::reverse(value.begin(), value.end());
-			stack->push_back(value);
-		}
-		// Substring
-		else if (currentLine.rfind("slc", 0) != std::string::npos)
-		{
-			const int to = StringToInt(stack->pop_back());
-			const int from = StringToInt(stack->pop_back());
-			const std::string value = stack->pop_back();
-			stack->push_back(value.substr(from, static_cast<size_t>(to) - from));
-		}
-		// Index
-		else if (currentLine.rfind("idx", 0) != std::string::npos)
-		{
-			const int index = StringToInt(stack->pop_back());
-			const std::string value = stack->pop_back();
-			stack->push_back(CharToString(value.at(index)));
-		}
-		// Concatenation
-		else if (currentLine.rfind("cat", 0) != std::string::npos)
-		{
-			const std::string first = stack->pop_back();
-			const std::string second = stack->pop_back();
-			stack->push_back(second + first);
-		}
-		// Length
-		else if (currentLine.rfind("len", 0) != std::string::npos)
-		{
-			const std::string value = stack->pop_back();
-			stack->push_back(NumberToString(value.length()));
-		}
-		// Rotate
-		else if (currentLine.rfind("rot", 0) != std::string::npos)
-		{
-			std::string value = stack->pop_back();
-			std::transform(value.begin(), value.end(), value.begin(), [](const char c) -> char
-			{
-				if (!std::isalpha(c)) return c;
-
-				const char pivot = std::isupper(c) ? 'A' : 'a';
-				return (c - pivot + 13) % 26 + pivot;
-			});
-			stack->push_back(value);
-		}
-		// Add new line
-		else if (currentLine.rfind("enl", 0) != std::string::npos)
-		{
-			const std::string value = stack->pop_back();
-			stack->push_back(value + "\n");
-		}
-		// Tests & Jumps
-		// Goto
-		else if (currentLine.rfind("gto", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			lineNumber = line;
-		}
-		// Goto if equal
-		else if (currentLine.rfind("geq", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			const std::string first = stack->pop_back();
-			const std::string second = stack->pop_back();
-			if (first == second)
-			{
-				lineNumber = line;
-			}
-		}
-		// Goto if not equal
-		else if (currentLine.rfind("gne", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			const std::string first = stack->pop_back();
-			const std::string second = stack->pop_back();
-			if (first != second)
-			{
-				lineNumber = line;
-			}
-		}
-		// Goto if less
-		else if (currentLine.rfind("glt", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
-			if (first < second)
-			{
-				lineNumber = line;
-			}
-		}
-		// Goto if less or equal
-		else if (currentLine.rfind("gle", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
-			if (first <= second)
-			{
-				lineNumber = line;
-			}
-		}
-		// Goto if greater
-		else if (currentLine.rfind("ggt", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
-			if (first > second)
-			{
-				lineNumber = line;
-			}
-		}
-		// Goto if greater or equal
-		else if (currentLine.rfind("gge", 0) != std::string::npos)
-		{
-			const int line = StringToInt(stack->pop_back());
-			const int second = StringToInt(stack->pop_back());
-			const int first = StringToInt(stack->pop_back());
-			if (first >= second)
-			{
-				lineNumber = line;
-			}
-		}
-		// Functions
-		// Definition
-		else if (currentLine.rfind("fun", 0) != std::string::npos)
-		{
-			callStack->push_back(lineNumber);
-
-			const int line = StringToInt(stack->pop_back());
-			lineNumber = line;
-		}
-		// Return
-		else if (currentLine.rfind("ret", 0) != std::string::npos)
-		{
-			lineNumber = callStack->pop_back();
-		}
-		else
-		{
-			std::cout << "Unknown syntax: " + currentLine << std::endl;
-		}
 	}
 	
 	return std::make_shared<InterpreterResult>(stack->back(), reachedEnd);
+}
+
+void Interpreter::RegisterCommands()
+{
+	// Values and Types
+	m_Factory->Register<IntegerCommand>(stack);
+	m_Factory->Register<StringCommand>(stack);
+	m_Factory->Register<LabelDefinitionCommand>();
+	m_Factory->Register<LabelReferenceCommand>(stack, labels);
+	m_Factory->Register<VariableAssignmentCommand>(stack, variables);
+	m_Factory->Register<VariableReferenceCommand>(stack, variables);
+	// IntegerCommand
+	m_Factory->Register<AbsoluteCommand>(stack);
+	m_Factory->Register<AddCommand>(stack);
+	m_Factory->Register<DecrementCommand>(stack);
+	m_Factory->Register<DivideCommand>(stack);
+	m_Factory->Register<IncrementCommand>(stack);
+	m_Factory->Register<ModuloCommand>(stack);
+	m_Factory->Register<MultiplyCommand>(stack);
+	m_Factory->Register<NegateCommand>(stack);
+	m_Factory->Register<SubtractCommand>(stack);
+	// StringCommand
+	m_Factory->Register<ConcatenationCommand>(stack);
+	m_Factory->Register<DuplicateCommand>(stack);
+	m_Factory->Register<IndexCommand>(stack);
+	m_Factory->Register<LengthCommand>(stack);
+	m_Factory->Register<NewLineCommand>(stack);
+	m_Factory->Register<ReverseCommand>(stack);
+	m_Factory->Register<RotateCommand>(stack);
+	m_Factory->Register<SubstringCommand>(stack);
+	// Test and Jump
+	m_Factory->Register<GotoCommand>(stack, &lineNumber);
+	m_Factory->Register<GotoIfEqualCommand>(stack, &lineNumber);
+	m_Factory->Register<GotoIfGreaterCommand>(stack, &lineNumber);
+	m_Factory->Register<GotoIfGreaterOrEqualCommand>(stack, &lineNumber);
+	m_Factory->Register<GotoIfLessCommand>(stack, &lineNumber);
+	m_Factory->Register<GotoIfLessOrEqualCommand>(stack, &lineNumber);
+	m_Factory->Register<GotoIfNotEqualCommand>(stack, &lineNumber);
+	// Functions
+	m_Factory->Register<FunctionDefinitionCommand>(stack, callStack, &lineNumber);
+	m_Factory->Register<FunctionReturnCommand>(callStack, &lineNumber);
+	// Other
+	m_Factory->Register<CommentCommand>();
+	m_Factory->Register<EndCommand>(&reachedEnd);
 }
 
 std::vector<std::string> Interpreter::SplitLines(const std::string& input)

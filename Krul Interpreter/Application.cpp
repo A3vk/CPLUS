@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "Exceptions/CurlUrlException.h"
 #include "Interpeter/Interpreter.h"
 
 Application::Application()
@@ -12,9 +13,19 @@ Application::Application()
 
 std::string Application::InterpretOnlineFile(const std::string& file)
 {
-	std::string fileData = m_CurlFacade->Get(BASE_URL + file);
+	std::string fileData;
+	
+	try
+	{
+		fileData = m_CurlFacade->Get(BASE_URL + file);
+	}
+	catch (CurlUrlException& e)
+	{
+		std::cout << e.GetException() << std::endl;
+		return "";
+	}
+	
 	const std::shared_ptr<InterpreterResult> result = m_Interpreter->Interpret(fileData);
-	std::cout << "Enkel bestand uitvoeren, resulataat: " + result->Result << std::endl;
 	return result->Result;
 }
 
@@ -22,12 +33,20 @@ std::string Application::InterpretMultipleOnlineFiles(const std::string& file)
 {
 	std::shared_ptr<InterpreterResult> result(new InterpreterResult());
 	std::string currentFile = file;
-
-	std::cout << "Meerdere bestanden uitvoeren, startpunt: " + file << std::endl;
-	
+		
 	while(!result->ReachedEnd)
 	{
-		std::string fileData = m_CurlFacade->Get(BASE_URL + currentFile);
+		std::string fileData;
+		try
+		{
+			fileData = m_CurlFacade->Get(BASE_URL + currentFile);
+		}
+		catch (CurlUrlException& e)
+		{
+			std::cout << e.GetException() << std::endl;
+			return "";
+		}
+		
 		result = m_Interpreter->Interpret(fileData);
 		currentFile = result->Result;
 		std::cout << currentFile << std::endl;
