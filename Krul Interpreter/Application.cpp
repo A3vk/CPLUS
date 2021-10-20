@@ -26,12 +26,13 @@ std::string Application::InterpretOnlineFile(const std::string& file)
 	}
 	
 	const std::shared_ptr<InterpreterResult> result = m_Interpreter->Interpret(fileData);
+	std::cout << result->Result << std::endl;
 	return result->Result;
 }
 
 std::string Application::InterpretMultipleOnlineFiles(const std::string& file)
 {
-	std::shared_ptr<InterpreterResult> result(new InterpreterResult());
+	std::shared_ptr<InterpreterResult> result = std::make_shared<InterpreterResult>();
 	std::string currentFile = file;
 		
 	while(!result->ReachedEnd)

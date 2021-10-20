@@ -47,18 +47,16 @@ Interpreter::Interpreter()
 	variables = std::make_shared<std::map<std::string, std::string>>();
 	labels = std::make_shared<std::map<std::string, int>>();
 
-	m_Factory = CommandFactory::Get();
+	//m_Factory = CommandFactory::Get();
+	m_Factory = CommandFactory::GetInstance();
 	RegisterCommands();
-}
-
-Interpreter::~Interpreter()
-{
 }
 
 std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& file)
 {
 	const std::vector<std::string> lines = SplitLines(file);
-
+	reachedEnd = false;
+	
 	// Get all reference assignments
 	for (size_t index = 0; index < lines.size(); index++)
 	{
@@ -86,8 +84,10 @@ std::shared_ptr<InterpreterResult> Interpreter::Interpret(const std::string& fil
 		if (reachedEnd) 
 			break;
 	}
-	
-	return std::make_shared<InterpreterResult>(stack->back(), reachedEnd);
+
+	auto result = stack->back();
+	CleanUp();
+	return std::make_shared<InterpreterResult>(result, reachedEnd);
 }
 
 void Interpreter::RegisterCommands()
@@ -134,7 +134,7 @@ void Interpreter::RegisterCommands()
 	m_Factory->Register<EndCommand>(&reachedEnd);
 }
 
-std::vector<std::string> Interpreter::SplitLines(const std::string& input)
+std::vector<std::string> Interpreter::SplitLines(const std::string& input) const
 {
 	std::vector<std::string> lines;
 	std::stringstream stream(input);
@@ -148,17 +148,10 @@ std::vector<std::string> Interpreter::SplitLines(const std::string& input)
 	return lines;
 }
 
-bool Interpreter::IsInt(const std::string& value)
+void Interpreter::CleanUp() const
 {
-	return !value.empty() && std::all_of(value.begin(), value.end(), std::isdigit);
-}
-
-std::string Interpreter::CharToString(char value)
-{
-	return std::string(1, value);
-}
-
-int Interpreter::StringToInt(const std::string& value)
-{
-	return std::stoi(value);
+	stack->clear();
+	callStack->clear();
+	variables->clear();
+	labels->clear();
 }

@@ -1,24 +1,20 @@
 #pragma once
-#include <map>
 #include <memory>
 #include <vector>
 
 #include "Command.h"
-#include "Interpeter/Stack.h"
 
 class CommandFactory
 {
+protected:
+	static std::unique_ptr<CommandFactory> instance;
 public:
 	CommandFactory() = default;
-	CommandFactory(const CommandFactory&) = default;
-	CommandFactory& operator=(const CommandFactory&) { return *this; }
-	~CommandFactory() = default;
+	CommandFactory(const CommandFactory&) = delete;
+	void operator=(const CommandFactory&) = delete;
+	~CommandFactory();
 
-	static std::unique_ptr<CommandFactory> Get()
-	{
-		static CommandFactory instance;
-		return std::make_unique<CommandFactory>(instance);
-	}
+	static std::unique_ptr<CommandFactory> GetInstance();
 
 	template<typename T, typename... Args>
 	void Register(Args... args)

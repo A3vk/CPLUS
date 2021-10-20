@@ -24,20 +24,13 @@ class Interpreter
 {
 public:
 	Interpreter();
-	~Interpreter();
+	~Interpreter() = default;
 	
 	std::shared_ptr<InterpreterResult> Interpret(const std::string& file);
 private:
 	void RegisterCommands();
-	std::vector<std::string> SplitLines(const std::string& input);
-	bool IsInt(const std::string& value);
-	template<typename T>
-	std::string NumberToString(T value)
-	{
-		return std::to_string(value);
-	}
-	std::string CharToString(char value);
-	int StringToInt(const std::string& value);
+	std::vector<std::string> SplitLines(const std::string& input) const;
+	void CleanUp() const;
 
 	size_t lineNumber = 0;
 	bool reachedEnd = false;

@@ -2,6 +2,23 @@
 
 #include "Exceptions/InterpreterException.h"
 
+CommandFactory::~CommandFactory()
+{
+	//m_Commands.clear();
+}
+
+std::unique_ptr<CommandFactory> CommandFactory::instance = nullptr;
+
+std::unique_ptr<CommandFactory> CommandFactory::GetInstance()
+{
+	if(instance == nullptr)
+	{
+		instance = std::make_unique<CommandFactory>();
+	}
+
+	return std::move(instance);
+}
+
 std::shared_ptr<Command> CommandFactory::Create(std::string line)
 {
 	for (auto& command : m_Commands)
